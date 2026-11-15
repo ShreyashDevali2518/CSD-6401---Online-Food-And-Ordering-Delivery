@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GoodBite | Orders & Delivery</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="topbar"><a class="brand" href="{{ url_for('index') }}">goodbite<span>.</span></a><span class="nav-label">ORDERS & DELIVERY</span></nav>
+<main class="page">
+    <header class="hero">
+        <p class="eyebrow">FROM OUR KITCHEN TO YOUR DOOR</p>
+        <h1>Every order has<br><em>a journey.</em></h1>
+        <p>Follow an order as it moves from the kitchen to the delivery doorstep.</p>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}<div class="message {{ category }}">{{ message }}</div>{% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <section class="create-card">
+        <div><p class="eyebrow">START A NEW ORDER</p><h2>Place an order</h2><p class="muted">Create a sample order to see its delivery journey.</p></div>
+        <form method="post" action="{{ url_for('create_order') }}" class="create-form">
+            <div><label for="customer">Customer name</label><input id="customer" name="customer" required maxlength="80" placeholder="Customer name"></div>
+            <div><label for="item">Food item</label><input id="item" name="item" required maxlength="100" placeholder="e.g. Classic Burger"></div>
+            <div class="wide"><label for="address">Delivery address</label><input id="address" name="address" required maxlength="200" placeholder="Delivery address"></div>
+            <button type="submit">Place order</button>
+        </form>
+    </section>
+
+    <section class="orders-section">
+        <div class="section-heading"><div><p class="eyebrow">LIVE ORDER BOARD</p><h2>Order tracking</h2></div><span class="count">{{ orders|length }} orders</span></div>
+        {% if orders %}
+        <div class="orders-grid">
+        {% for order in orders %}
+            <article class="order-card">
+                <div class="order-top"><div><span class="order-id">ORDER #{{ order.id }}</span><h3>{{ order.item }}</h3><p>For {{ order.customer }}</p></div><span class="status status-{{ order.status|lower|replace(' ','-') }}">{{ order.status }}</span></div>
+                <div class="delivery-address"><span>⌖</span><div><small>DELIVER TO</small><strong>{{ order.address }}</strong></div></div>
+                <div class="progress">
+                    {% set stages = ['Placed','Preparing','Out for delivery','Delivered'] %}
+                    {% for stage in stages %}
+<div class="stage {% if order.status in stages and stages.index(stage) <= stages.index(order.status) %}done{% endif %}">
+                        <span class="dot"></span><small>{{ stage }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if order.status not in ['Delivered','Cancelled'] %}
+                <div class="order-actions">
+                    <form method="post" action="{{ url_for('advance_order', order_id=order.id) }}"><button type="submit">Move to next stage →</button></form>
+                    {% if order.status in ['Placed','Preparing'] %}<form method="post" action="{{ url_for('cancel_order', order_id=order.id) }}"><button class="cancel-button" type="submit">Cancel</button></form>{% endif %}
+                </div>
+                {% else %}<p class="closed-note">{{ 'This order has reached its destination.' if order.status == 'Delivered' else 'This order has been cancelled.' }}</p>{% endif %}
+                <p class="created">Created {{ order.created_at }}</p>
+            </article>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty"><span>🛵</span><h3>No orders yet</h3><p>Create an order above to begin tracking.</p></div>
+        {% endif %}
+    </section>
+    <footer>GoodBite · Every order matters.</footer>
+</main>
+</body>
+</html>
