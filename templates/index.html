@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101827">
+    <title>QuickBite — Checkout</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="ambient ambient-one"></div>
+<div class="ambient ambient-two"></div>
+
+<nav class="nav-shell">
+    <a class="brand" href="{{ url_for('index') }}" aria-label="QuickBite home">
+        <span class="brand-mark">q</span>
+        <span>quick<span class="brand-accent">bite</span></span>
+    </a>
+    <div class="nav-middle"><span class="nav-dot"></span> SECURE CHECKOUT</div>
+    <div class="nav-right"><span class="lock-icon">⌑</span> DEMO PAYMENT</div>
+</nav>
+
+<main class="app-shell">
+    <section class="intro">
+        <div class="intro-copy">
+            <div class="kicker"><span>01</span> / THE LAST STEP</div>
+            <h1>Good food.<br><span>One final tap.</span></h1>
+            <p>Review your details, pick an offer and choose how you want to pay. You're almost at the good part.</p>
+            <div class="trust-row">
+                <span class="trust-icon">✓</span>
+                <span>Secure demo checkout</span>
+                <i></i>
+                <span>No real money charged</span>
+            </div>
+        </div>
+        <div class="intro-art" aria-hidden="true">
+            <div class="art-orbit orbit-a"></div>
+            <div class="art-orbit orbit-b"></div>
+            <div class="food-disc">
+                <div class="food-shadow"></div>
+                <div class="food-plate">
+                    <div class="pizza">
+                        <span class="topping t1"></span><span class="topping t2"></span>
+                        <span class="topping t3"></span><span class="topping t4"></span>
+                        <span class="topping t5"></span><span class="topping t6"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="art-tag tag-top">FRESHLY MADE <b>✳</b></div>
+            <div class="art-tag tag-bottom"><b>100%</b> GOOD MOOD</div>
+        </div>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack" role="status">
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}"><span class="flash-symbol">{% if category == 'success' %}✓{% else %}!{% endif %}</span>{{ message }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <section class="checkout-grid">
+        <form class="checkout-panel" method="post" action="{{ url_for('checkout') }}">
+            <div class="panel-top">
+                <div><div class="section-index">CHECKOUT FORM <span>•</span> STEP 01</div><h2>Let's get this sorted.</h2></div>
+                <div class="step-pill"><span></span> IN PROGRESS</div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-heading"><span class="section-number">1</span><div><h3>Your details</h3><p>Who are we preparing this order for?</p></div></div>
+                <div class="field-grid">
+                    <div class="field">
+                        <label for="customer_name">CUSTOMER NAME</label>
+                        <input id="customer_name" name="customer_name" type="text" required maxlength="80"
+                               placeholder="Enter your name" value="{{ form_data.get('customer_name','') }}" autocomplete="name">
+                    </div>
+                    <div class="field">
+                        <label for="amount">ORDER SUBTOTAL <span>(₹)</span></label>
+                        <div class="amount-input"><span>₹</span><input id="amount" name="amount" type="number" min="0.01" step="0.01" required
+                               placeholder="450.00" value="{{ form_data.get('amount','') }}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-heading"><span class="section-number">2</span><div><h3>Make it a better deal</h3><p>Choose one discount for this checkout.</p></div></div>
+                <div class="discount-grid">
+                    {% for key, label in discount_options.items() %}
+                    <label class="discount-option">
+                        <input type="radio" name="discount_type" value="{{ key }}"
+                            {% if form_data.get('discount_type','none') == key %}checked{% endif %}>
+                        <span class="custom-radio"></span>
+                        <span class="discount-copy">
+                            <strong>{{ label }}</strong>
+                            <small>{% if key == 'none' %}Standard checkout{% elif key == 'percentage' %}A little off your total{% else %}Save on this order{% endif %}</small>
+                        </span>
+                        <span class="discount-glyph">{% if key == 'none' %}—{% elif key == 'percentage' %}%{% else %}₹{% endif %}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-section payment-section">
+                <div class="section-heading"><span class="section-number">3</span><div><h3>How would you like to pay?</h3><p>Pick a demo payment method to continue.</p></div></div>
+                <div class="payment-grid">
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="card" required {% if form_data.get('payment_method') == 'card' %}checked{% endif %}>
+                        <span class="payment-inner"><span class="payment-icon card-icon">▰</span><strong>Card</strong><small>Credit / Debit</small><span class="radio-indicator"></span></span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="upi" required {% if form_data.get('payment_method') == 'upi' %}checked{% endif %}>
+                        <span class="payment-inner"><span class="payment-icon upi-icon">⌁</span><strong>UPI</strong><small>Instant transfer</small><span class="radio-indicator"></span></span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="wallet" required {% if form_data.get('payment_method') == 'wallet' %}checked{% endif %}>
+                        <span class="payment-inner"><span class="payment-icon wallet-icon">▣</span><strong>Wallet</strong><small>Digital wallet</small><span class="radio-indicator"></span></span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="submit-button" type="submit">
+                <span>Confirm &amp; pay</span><span class="button-arrow">↗</span>
+            </button>
+            <div class="form-footnote"><span>ⓘ</span> Coursework simulation only. No real payment is made and no card or UPI credentials are collected.</div>
+        </form>
+
+        <aside class="summary-column">
+            <div class="summary-card">
+                <div class="summary-top"><span>YOUR CHECKOUT</span><span class="summary-live"><i></i> LIVE PREVIEW</span></div>
+                <div class="summary-title">A little recap.</div>
+                <div class="summary-illustration">
+                    <div class="mini-plate"><div class="mini-pizza"></div></div>
+                    <div class="summary-sticker">MADE<br>WITH ♥</div>
+                </div>
+                <div class="summary-lines">
+                    <div><span>Order subtotal</span><strong id="preview-subtotal">₹0.00</strong></div>
+                    <div><span>Selected discount</span><strong class="discount-value" id="preview-discount">− ₹0.00</strong></div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-total"><span>Estimated total</span><strong id="preview-total">₹0.00</strong></div>
+                </div>
+                <p class="preview-note">This preview is an estimate. The server calculates and validates the final amount when you submit.</p>
+            </div>
+            <div class="assurance-card">
+                <div class="assurance-icon">✳</div>
+                <div><strong>Good choice.</strong><p>Every checkout here is simulated for your project demo. No external payment service is contacted.</p></div>
+            </div>
+            <div class="side-caption">LESS WAITING. MORE EATING.</div>
+        </aside>
+    </section>
+
+    {% if receipt %}
+    <section class="receipt-panel">
+        <div class="receipt-heading">
+            <div class="receipt-status {% if not receipt.success %}failed{% endif %}">{% if receipt.success %}✓{% else %}!{% endif %}</div>
+            <div><div class="section-index">TRANSACTION SUMMARY</div><h2>{{ "Payment successful" if receipt.success else "Payment declined" }}</h2></div>
+        </div>
+        <div class="receipt-grid">
+            <div><span>CUSTOMER</span><strong>{{ receipt.customer }}</strong></div>
+            <div><span>PAYMENT METHOD</span><strong>{{ receipt.method }}</strong></div>
+            <div><span>SUBTOTAL</span><strong>₹{{ "%.2f"|format(receipt.subtotal) }}</strong></div>
+            <div><span>DISCOUNT</span><strong class="receipt-saving">− ₹{{ "%.2f"|format(receipt.discount) }}</strong></div>
+            <div><span>AMOUNT PAID</span><strong class="receipt-amount">₹{{ "%.2f"|format(receipt.amount) }}</strong></div>
+            <div><span>REFERENCE ID</span><strong class="reference">{{ receipt.reference }}</strong></div>
+            <div><span>DATE &amp; TIME</span><strong>{{ receipt.timestamp }}</strong></div>
+        </div>
+        <p class="receipt-message">{{ receipt.message }}</p>
+        <form method="post" action="{{ url_for('clear_receipt') }}"><button class="clear-button" type="submit">Clear receipt <span>×</span></button></form>
+    </section>
+    {% endif %}
+    <footer class="footer"><a class="footer-brand" href="{{ url_for('index') }}">quickbite<span>.</span></a><span>GOOD FOOD IS ALWAYS A GOOD IDEA.</span><span>© QUICKBITE · COURSEWORK DEMO</span></footer>
+</main>
+
+<script>
+(function () {
+    const amountInput = document.getElementById('amount');
+    const subtotalOutput = document.getElementById('preview-subtotal');
+    const discountOutput = document.getElementById('preview-discount');
+    const totalOutput = document.getElementById('preview-total');
+
+    function updatePreview() {
+        const amount = Math.max(0, Number.parseFloat(amountInput.value) || 0);
+        const selected = document.querySelector('input[name="discount_type"]:checked');
+        const type = selected ? selected.value : 'none';
+        let discount = 0;
+        if (type === 'percentage') discount = amount * 0.10;
+        if (type === 'flat') discount = Math.min(amount, 50);
+        discount = Math.round(discount * 100) / 100;
+        const total = Math.max(0, amount - discount);
+        subtotalOutput.textContent = '₹' + amount.toFixed(2);
+        discountOutput.textContent = '− ₹' + discount.toFixed(2);
+        totalOutput.textContent = '₹' + total.toFixed(2);
+    }
+    amountInput.addEventListener('input', updatePreview);
+    document.querySelectorAll('input[name="discount_type"]').forEach(input => input.addEventListener('change', updatePreview));
+    updatePreview();
+})();
+</script>
+</body>
+</html>
