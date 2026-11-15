@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}GoodBite Menu{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="nav">
+    <a class="brand" href="{{ url_for('index') }}">goodbite<span>.</span></a>
+    <div class="nav-actions">
+        {% if user %}
+            <span class="welcome">Hi, {{ user.name }}</span>
+            {% if user.role == 'admin' %}<a href="{{ url_for('admin_menu') }}">Manage menu</a>{% endif %}
+            <form method="post" action="{{ url_for('logout') }}"><button class="nav-button">Log out</button></form>
+        {% else %}
+            <a href="{{ url_for('login') }}">Log in</a>
+            <a class="nav-cta" href="{{ url_for('register') }}">Create account</a>
+        {% endif %}
+    </div>
+</nav>
+<main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</main>
+<footer>GoodBite · Fresh food, made simple.</footer>
+</body>
+</html>
