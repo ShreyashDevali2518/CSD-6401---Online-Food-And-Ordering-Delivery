@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GoodBite | Purple Cart Experience</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="purple-theme">
+<nav class="topbar">
+    <a class="brand" href="{{ url_for('index') }}">goodbite<span>.</span></a>
+    <a class="cart-link" href="#cart">Your cart · {{ cart|sum(attribute='quantity') }}</a>
+</nav>
+<main class="page">
+    <header class="hero">
+        <p class="eyebrow">MAKE EVERY BITE YOUR OWN</p>
+        <h1>Your meal,<br><em>your way.</em></h1>
+        <p>Choose a favourite, add the extras you love, or put together a meal combo.</p>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <section class="section">
+        <div class="section-heading"><div><p class="eyebrow">THE MENU</p><h2>Pick your favourites</h2></div></div>
+        <div class="menu-grid">
+        {% for food in foods %}
+            <article class="food-card">
+                <div class="food-art">{{ {'main':'🍔','side':'🍟','drink':'🥤'}.get(food.category,'🍽️') }}</div>
+                <div class="food-info">
+                    <span class="category">{{ food.category }}</span>
+                    <h3>{{ food.name }}</h3>
+                    <p>{{ food.description }}</p>
+                    <strong>₹{{ "%.2f"|format(food.price) }}</strong>
+                </div>
+                <form method="post" action="{{ url_for('add_food', food_id=food.id) }}" class="add-form">
+                    <details>
+                        <summary>Customize this item</summary>
+                        <div class="addon-list">
+                        {% for key, addon in addons.items() %}
+                            <label><input type="checkbox" name="addons" value="{{ key }}"> {{ addon.label }} <small>+₹{{ addon.price }}</small></label>
+                        {% endfor %}
+                        </div>
+                    </details>
+                    <button type="submit">Add to cart <span>+</span></button>
+                </form>
+            </article>
+        {% endfor %}
+        </div>
+    </section>
+
+    <section class="section combo-section">
+        <div class="section-heading"><div><p class="eyebrow">BUILD YOUR OWN</p><h2>Create a meal combo</h2><p class="subheading">Pick one main, one side and one drink.</p></div></div>
+        <form class="combo-form" method="post" action="{{ url_for('add_combo') }}">
+            <div><label for="main_item">Main item</label><select id="main_item" name="main_item" required>
+                <option value="">Choose a main</option>
+                {% for food in foods if food.category == 'main' %}<option value="{{ food.name }}">{{ food.name }} · ₹{{ food.price }}</option>{% endfor %}
+            </select></div>
+            <div><label for="side_item">Side</label><select id="side_item" name="side_item" required>
+                <option value="">Choose a side</option>
+                {% for food in foods if food.category == 'side' %}<option value="{{ food.name }}">{{ food.name }} · ₹{{ food.price }}</option>{% endfor %}
+            </select></div>
+            <div><label for="drink_item">Drink</label><select id="drink_item" name="drink_item" required>
+                <option value="">Choose a drink</option>
+                {% for food in foods if food.category == 'drink' %}<option value="{{ food.name }}">{{ food.name }} · ₹{{ food.price }}</option>{% endfor %}
+            </select></div>
+            <button type="submit">Build combo and add to cart</button>
+        </form>
+    </section>
+
+    <section class="section" id="cart">
+        <div class="section-heading"><div><p class="eyebrow">READY WHEN YOU ARE</p><h2>Your shopping cart</h2></div></div>
+        <div class="cart-layout">
+            <div class="cart-panel">
+            {% if cart %}
+                {% for item in cart %}
+                <div class="cart-row">
+                    <div class="cart-name"><strong>{{ item.name }}</strong><span>{{ item.kind|title }} · ₹{{ "%.2f"|format(item.price) }} each</span></div>
+                    <div class="quantity">
+                        <form method="post" action="{{ url_for('change_quantity', line_id=item.line_id, delta=-1) }}"><button aria-label="Decrease quantity">−</button></form>
+                        <b>{{ item.quantity }}</b>
+                        <form method="post" action="{{ url_for('change_quantity', line_id=item.line_id, delta=1) }}"><button aria-label="Increase quantity">+</button></form>
+                    </div>
+                    <strong>₹{{ "%.2f"|format(item.price * item.quantity) }}</strong>
+                    <form method="post" action="{{ url_for('remove_item', line_id=item.line_id) }}"><button class="remove" type="submit">Remove</button></form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-cart"><span>🛍️</span><h3>Your cart is empty</h3><p>Add a customized favourite or build a combo above.</p></div>
+            {% endif %}
+            </div>
+            <aside class="summary">
+                <h3>Cart summary</h3>
+                <div class="summary-total"><span>Subtotal</span><strong>₹{{ "%.2f"|format(subtotal) }}</strong></div>
+                <p class="subheading">Your items stay here while you explore the menu.</p>
+                {% if cart %}<form method="post" action="{{ url_for('clear_cart') }}"><button class="clear-button" type="submit">Clear cart</button></form>{% endif %}
+            </aside>
+        </div>
+    </section>
+    <footer>GoodBite · Your meal, your way.</footer>
+</main>
+</body>
+</html>
