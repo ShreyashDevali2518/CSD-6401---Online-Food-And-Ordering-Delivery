@@ -1,11 +1,14 @@
 # GoodBite – Restaurant Ordering System
 25P0630002-DATTADEEP (20%)(CONTRIBUTED IN INTEGRATED STRATEGY DESIGN PATTERN FOR DISCOUNTS AND OFFERS , ADAPTER FOR PAYMENT OPTION {UPI ,CARD} , FASCADE FOR INTERNALLY CONNECTING PAYMENT AND DISCOUNT) 
+
 25P0630006-KAUSHIK (20%)(Delivery tracking and notifications The State Pattern controls the order lifecycle:Placed → Preparing → Out for Delivery Delivered The Observer Pattern sends notifications when order status changes.The customer can view their own order details, while the administrator can manage all orders.)
+
 25P0630014-SANIL (20%)(Responsible for developing the Cart and Customization module using three design patterns:
 - *Command Pattern:* Implements cart operations such as adding, removing, and updating food items.
 - *Decorator Pattern:* Enables dynamic food customization by adding extras such as cheese, toppings, and additional ingredients.
 - *Builder Pattern:* Allows customers to create customized meal combos by combining main dishes, sides, and drinks.
 Integrated the module with the Checkout and Payment module to pass cart items and the calculated total for order processing)
+
 25P0630016-SHREYASH (40%)(Integrated Authentication(Singleton pattern) and Restaurant Menu(Factory method pattern) , Access control (Proxy pattern) , Database Render Postgresql , Render Deployment/Hosting)
 
 A single Flask application combining the four independently developed coursework modules. It preserves all ten allocated design patterns and connects the complete customer journey.
