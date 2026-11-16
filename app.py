@@ -18,7 +18,16 @@ from goodbite.orders_delivery.observers import NotificationCenter, EmailNotifica
 from goodbite.orders_delivery.order_service import OrderService
 
 app=Flask(__name__)
-app.secret_key=os.getenv("SECRET_KEY","change-this-development-secret-before-deployment")
+app.secret_key=os.getenv("SECRET_KEY", "local-development-only-change-me")
+
+@app.get("/health")
+def health():
+    """Render health check; also verifies that PostgreSQL is reachable."""
+    from sqlalchemy import text
+    db.initialize()
+    with db.engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+    return {"status": "ok", "database": "connected"}, 200
 db=DatabaseManager()
 menu_proxy=MenuManagementProxy(db)
 checkout_facade=CheckoutFacade()

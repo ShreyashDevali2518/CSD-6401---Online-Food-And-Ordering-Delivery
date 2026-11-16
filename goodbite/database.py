@@ -85,9 +85,9 @@ class DatabaseManager:
             return dict(row) if row else None
     def create_user(self,name,email,password_hash):
         with self.engine.begin() as con:
-            result=con.execute(text("INSERT INTO users(name,email,password_hash,role) VALUES(:n,:e,:p,'customer')"),
+            result=con.execute(text("INSERT INTO users(name,email,password_hash,role) VALUES(:n,:e,:p,'customer') RETURNING id"),
                                {"n":name,"e":email,"p":password_hash})
-            return result.lastrowid
+            return result.scalar_one()
     def get_menu(self):
         with self.engine.connect() as con:
             return [dict(r) for r in con.execute(text("SELECT * FROM menu_items ORDER BY category,name")).mappings()]
